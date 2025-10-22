@@ -1,15 +1,30 @@
+/*
+# Build legacy version (Android 8 / API 26)
+bash gradlew clean assembleLegacyDebug
+
+# Build modern version (Android 14 / API 34 with AndroidX)
+bash gradlew clean assembleModernDebug
+ */
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 26
-    buildToolsVersion '26.0.3'
+    namespace "org.ocs.android.agent"
 
+    // compileSdkVersion is set per flavor below
     useLibrary 'org.apache.http.legacy'
 
     defaultConfig {
         applicationId "org.ocs.android.agent"
-        minSdkVersion 26
+        minSdkVersion 19
         targetSdkVersion 26
+        versionCode 27
+        versionName "2.7"
+    }
+
+    compileOptions {
+        // Use Java 17 if your Android Gradle Plugin (AGP) >= 7.3
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
     }
 
     buildTypes {
@@ -17,12 +32,72 @@ android {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
         }
+        debug {
+            applicationIdSuffix ".debug"
+            versionNameSuffix "-debug"
+        }
     }
+
+    // Define two build flavors: legacy (Android 8) and modern (Android 14)
+    flavorDimensions "mode"
+
     productFlavors {
+        // -------- Legacy flavor: Android O (API 26) --------
+        legacy {
+            dimension "mode"
+            compileSdkVersion 26
+            targetSdkVersion 26
+            minSdkVersion 26   // old devices supported
+            resValue "string", "build_mode", "Legacy (Android 8)"
+            applicationIdSuffix ".legacy"
+        }
+
+        // -------- Modern flavor: Android 14 (API 34, AndroidX) --------
+        modern {
+            dimension "mode"
+            compileSdkVersion 34
+            targetSdkVersion 34
+            //minSdkVersion 19   // must be at least 19 for Material 1.12.0
+            minSdkVersion 21
+            resValue "string", "build_mode", "Modern (Android 14)"
+            applicationIdSuffix ".modern"
+        }
+    }
+
+    lint {
+        abortOnError false // Don’t stop the build because of AndroidX warnings
     }
 }
 
 dependencies {
-    implementation 'com.android.support:support-v4:26.1.0'
-    implementation 'com.android.support:appcompat-v7:26.1.0'
+    // ==========================================================
+    // 📦 Flavor-specific dependencies
+    // ==========================================================
+    // Common dependencies (AndroidX)
+    /*
+    implementation 'androidx.appcompat:appcompat:1.7.0'
+    implementation 'androidx.core:core-ktx:1.13.1'
+    implementation 'com.google.android.material:material:1.5.0'
+    implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
+    */
+    // Legacy build → pre-AndroidX libraries
+    legacyImplementation('com.android.support:support-v4:26.1.0') {
+        exclude group: 'androidx.appcompat'
+        exclude group: 'androidx.core'
+        exclude group: 'androidx.vectordrawable'
+    }
+
+    legacyImplementation ('com.android.support:appcompat-v7:26.1.0') {
+        exclude group: 'androidx.appcompat'
+        exclude group: 'androidx.core'
+        exclude group: 'androidx.vectordrawable'
+    }
+    legacyImplementation 'com.google.android.material:material:1.5.0'
+    modernImplementation 'com.google.android.material:material:1.12.0'
+
+    // Modern build → AndroidX libraries
+    //modernImplementation 'androidx.core:core-ktx:1.13.1'
+    modernImplementation 'androidx.appcompat:appcompat:1.7.0'
+    modernImplementation 'com.google.android.material:material:1.12.0'
 }
+

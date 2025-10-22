@@ -20,7 +20,6 @@
  */
 package org.ocs.android.agent.activity;
 
-import android.Manifest;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -31,9 +30,9 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.preference.PreferenceManager;
 import android.provider.Settings.Secure;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
-import android.support.v7.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+import androidx.appcompat.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -166,7 +165,7 @@ public class OCSAgentActivity extends AppCompatActivity implements ActivityCompa
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
+        /*switch (item.getItemId()) {
             case R.id.menu_settings:
                 startActivity(new Intent(this, OCSPrefsActivity.class));
                 break;
@@ -182,6 +181,17 @@ public class OCSAgentActivity extends AppCompatActivity implements ActivityCompa
                 break;
             default:
                 break;
+        }*/
+        int id = item.getItemId();
+        if (id == R.id.menu_settings)
+            startActivity(new Intent(this, OCSPrefsActivity.class));
+        else if (id == R.id.menu_export)
+                exportConfig();
+        else if (id == R.id.menu_import)
+                importConfig();
+        else if (id == R.id.menu_about) {
+            AboutDialog about = new AboutDialog(this);
+            about.show();
         }
         return true;
     }
@@ -259,28 +269,29 @@ public class OCSAgentActivity extends AppCompatActivity implements ActivityCompa
 
     private boolean checkAndRequestPermissions() {
         // Check permissions
-        String[] ocsPermissions = new String[]{
-                Manifest.permission.READ_EXTERNAL_STORAGE,
-                Manifest.permission.CAMERA,
-                Manifest.permission.READ_PHONE_STATE,
-                Manifest.permission.ACCESS_FINE_LOCATION,
-                Manifest.permission.ACCESS_COARSE_LOCATION};
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            String[] ocsPermissions = new String[]{
+                    android.Manifest.permission.READ_EXTERNAL_STORAGE,
+                    android.Manifest.permission.CAMERA,
+                    android.Manifest.permission.READ_PHONE_STATE};
 
-        List<String> permissionNeeded = new ArrayList<>();
-        for (String permission:ocsPermissions) {
-            if (ContextCompat.checkSelfPermission(this, permission) != PackageManager.PERMISSION_GRANTED){
-                permissionNeeded.add(permission);
+            List<String> permissionNeeded = new ArrayList<>();
+            for (String permission:ocsPermissions) {
+                if (ContextCompat.checkSelfPermission(this, permission) != PackageManager.PERMISSION_GRANTED){
+                    permissionNeeded.add(permission);
+                }
             }
-        }
 
-        if (!permissionNeeded.isEmpty()) {
-            requestPermissions(permissionNeeded.toArray(new String[permissionNeeded.size()]), REQUEST_PERMISSION_CODE);
-        }
-
-        for (String permission:ocsPermissions) {
-            if (ContextCompat.checkSelfPermission(this, permission) != PackageManager.PERMISSION_GRANTED){
-                return false;
+            if (!permissionNeeded.isEmpty()) {
+                requestPermissions(permissionNeeded.toArray(new String[permissionNeeded.size()]), REQUEST_PERMISSION_CODE);
             }
+
+            for (String permission:ocsPermissions) {
+                if (ContextCompat.checkSelfPermission(this, permission) != PackageManager.PERMISSION_GRANTED){
+                    return false;
+                }
+            }
+
         }
 
         return true;

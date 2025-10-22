@@ -103,9 +103,11 @@ public class OCSNetworks implements OCSSectionInterface {
                     OCSNetwork netw = new OCSNetwork(name);
                     netw.setIpAdress(ipAdr.getHostAddress());
 
-                    try {
-                        netw.setMacaddr(Utils.bytesToHex(ni.getHardwareAddress()));
-                    } catch (SocketException ignored) {
+                    if (Build.VERSION.SDK_INT > Build.VERSION_CODES.FROYO) {
+                        try {
+                            netw.setMacaddr(Utils.bytesToHex(ni.getHardwareAddress()));
+                        } catch (SocketException se) {
+                        }
                     }
                     // this ip may be already presents as a wifi address
                     boolean isWifi = false;

@@ -31,7 +31,7 @@ import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Binder;
 import android.os.IBinder;
-import android.support.v4.app.NotificationCompat;
+import androidx.core.app.NotificationCompat;
 
 import org.ocs.android.actions.Inventory;
 import org.ocs.android.actions.OCSFiles;

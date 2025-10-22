@@ -44,12 +44,24 @@ public class OCSSims implements OCSSectionInterface {
         if (mng == null) {
             ocslog.error("TelephonyManager information not found");
         } else {
-            device_id = mng.getDeviceId();
-            simcountry = mng.getSimCountryIso();
-            simoperator = mng.getSimOperator();
-            simopname = mng.getSimOperatorName();
-            simserial = mng.getSimSerialNumber();
-            phonenumber = mng.getLine1Number();
+            // device_id = mng.getDeviceId();
+            /*if (ActivityCompat.checkSelfPermission(context, Manifest.permission.READ_PHONE_STATE)
+                    == PackageManager.PERMISSION_GRANTED) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    device_id = mng.getImei(); // API 26+
+                } else {
+                    device_id = mng.getDeviceId();
+           */  /*       simcountry = mng.getSimCountryIso();
+                    simoperator = mng.getSimOperator();
+                    simopname = mng.getSimOperatorName();
+                    simserial = mng.getSimSerialNumber();
+                    phonenumber = mng.getLine1Number();
+                    */
+             /*   }
+            } else {
+                device_id = "unknown";
+            }*/
+
             ocslog.debug("device_id : " + device_id);
         }
     }
